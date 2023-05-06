@@ -11,12 +11,12 @@ Carbites supports treewalk strategy:
 **Treewalk** - walks the DAG to pack sub-graphs into each CAR file that is output. Every CAR file has the _same_ root CID but contains a different portion of the DAG. The DAG is traversed from the root node and each block is decoded and links extracted in order to determine which sub-graph to include in each CAR.
 
 ```rust
-use carbites;
+use carbites::{new_splitter, CarSplitter, Strategy};
 use std::io::Write;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let file = std::fs::File::open("examples/test.car")?;
-    let mut splitter = carbites::new_splitter(carbites::Strategy::Treewalk, file, 1024);
+    let mut splitter = new_splitter(Strategy::Treewalk, file, 1024);
 
     let mut i = 0;
     while let Some(chunk) = splitter.next_chunk()? {
