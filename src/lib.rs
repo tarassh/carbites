@@ -12,7 +12,7 @@ pub enum Strategy {
     Treewalk,
 }
 
-pub fn new_splitter<R>(strategy: Strategy, r: R, target_size: usize) -> Box<dyn CarSplitter>
+pub fn new_splitter<R>(strategy: Strategy, r: R, target_size: usize) -> Box<impl CarSplitter>
 where
     R: Read + Seek + 'static,
 {
