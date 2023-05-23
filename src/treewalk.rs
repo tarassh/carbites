@@ -36,22 +36,30 @@ where
 
         let mut pending_blocks: VecDeque<PendingBlock> = VecDeque::new();
         let ipld = reader.ipld(&root)?;
-        match ipld.take("Links") {
-            Ok(Ipld::List(links)) => {
-                for link in links.iter() {
-                    pending_blocks.push_back(PendingBlock {
-                        cid: extract_cid(link)?,
-                        parents: parents.clone(),
-                    });
+        match ipld {
+            Ipld::Map(_) => match ipld.take("Links") {
+                Ok(Ipld::List(links)) => {
+                    for link in links.iter() {
+                        pending_blocks.push_back(PendingBlock {
+                            cid: extract_cid(link)?,
+                            parents: parents.clone(),
+                        });
+                    }
                 }
-            }
-            Ok(_) => {
-                return Err(CarSplitterError::Parsing(
-                    "root node does not have links".to_owned(),
+                Ok(_) => {
+                    return Err(CarSplitterError::Parsing(
+                        "root node does not have links".to_owned(),
+                    ))
+                }
+                Err(e) => {
+                    return Err(CarSplitterError::Parsing(e.to_string()));
+                }
+            },
+            Ipld::Bytes(_) => {}
+            _ => {
+                return Err(CarSplitterError::InvalidFile(
+                    "root node is not a map".to_owned(),
                 ))
-            }
-            Err(e) => {
-                return Err(CarSplitterError::Parsing(e.to_string()));
             }
         }
 
